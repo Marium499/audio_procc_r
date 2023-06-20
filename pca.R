@@ -37,6 +37,8 @@ Y = numerical_data %>% select(emotion)
 data_normalized <- scale(X)
 head(data_normalized)
 
+dev.off()
+
 corr_matrix <- cor(data_normalized)
 ggcorrplot(corr_matrix)
 

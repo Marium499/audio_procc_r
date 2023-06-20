@@ -65,7 +65,7 @@ train_control = trainControl(method = "cv", number = 5)
 set.seed(50)
 
 # training a Regression model while tuning parameters (Method = "rpart")
-model = train(emotion~., data = X_tr_rescaled, method = "svmLinear", trControl = train_control)
+model = train(emotion~., data = X_tr_rescaled, method = "svmRadial", trControl = train_control)
 
 # summarising the results
 print(model)

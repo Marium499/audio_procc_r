@@ -1,4 +1,5 @@
 library(tuneR)
+
 library(audio)
 library(seewave)
 library(stringr)
@@ -16,6 +17,7 @@ library(caret)
 library(factoextra)
 library("FactoMineR")
 library("ggcorrplot")
+
 library("corrr")
 
 
@@ -199,8 +201,8 @@ subplot5 <- ggplot(df_c, aes(x = dataset, y = duration)) +
 print(subplot5)
 
 # Randomly select a few audio files from df_c
-sample_rows <- sample(nrow(df_c), 3)
-sample_audio_files <- df_c$path[sample_rows]
+sample_rows <- sample(nrow(df), 3)
+sample_audio_files <- df$path[sample_rows]
 
 # Iterate through the selected audio files
 for (audio_file in sample_audio_files) {
@@ -208,7 +210,7 @@ for (audio_file in sample_audio_files) {
   audio <- readWave(audio_file)
   
   # Print the other columns for the current audio file
-  audio_info <- df_c[df_c$path == audio_file, ]
+  audio_info <- df[df$path == audio_file, ]
   print(audio_info)
   
   # Visualize the waveform
@@ -216,84 +218,20 @@ for (audio_file in sample_audio_files) {
   plot(audio, main = "Waveform")
   
   # Compute and visualize the spectrogram
-  spec <- spec(audio)
-  plot(spec, main = "Spectrogram")
+  #spec <- spec(audio)
+  #plot(spec, main = "Spectrogram")
   
   # Compute and visualize the MFCCs
   mfcc <- melfcc(audio)
-  plot(mfcc, main = "MFCCs")
+  #plot(mfcc, main = "MFCCs")
+  print("MFCC COL MEANS")
+  print(colMeans(mfcc))
   
   # Play the audio
   tuneR::play(audio)
 }
 
-###### DATA EXPLORATION ########
 
-# First subplot: Distribution of audio files by target emotion and dataset
-subplot1 <- ggplot(df, aes(x = emotion, fill = dataset)) +
-  geom_bar(position = "stack") +
-  labs(
-    y = "number of samples") +
-  theme(legend.title = element_blank())
-
-# Second subplot: Gender distribution for each emotion
-subplot2 <- ggplot(df, aes(x = emotion, fill = gender)) +
-  geom_bar(position = "stack") +
-  labs(
-    y = "number of samples") +
-  theme(legend.title = element_blank())
-
-# Combine subplots into a single figure
-#combined_plot <- subplot1 + subplot2 + plot_layout(ncol = 2)
-
-# Display the figure
-print(subplot1)
-
-# Display the figure
-print(subplot2)
-
-figure <- ggarrange(subplot1, subplot2,
-                    labels = c("Distribution of audio files by target emotion and dataset", "Gender distribution for each emotion"),
-                    ncol = 2, nrow = 1,widths = c(2, 2), heights = c(2, 2))
-
-
-print(figure)
-
-# Plotting sample rate values
-
-value_counts <- table(df$sample_rate)
-
-# Print the value counts
-print(value_counts)
-
-subplot3 <- ggplot(df, aes(x = factor(sample_rate))) +
-  geom_bar() +
-  labs(title = 'Sample rate values',
-       x = 'sample frequencies (Hz)',
-       y = 'number of samples') +
-  theme(plot.title = element_text(hjust = 0.5))
-
-print(subplot3)
-
-# Plotting speaker age
-subplot4 <- ggplot(df, aes(x = age)) +
-  geom_histogram(bins = 30, fill = 'lightblue', color = 'black') +
-  labs(title = 'Speakers age in the dataset',
-       x = 'age',
-       y = 'number of samples') +
-  theme(plot.title = element_text(hjust = 0.5))
-
-print(subplot4)
-
-# Create the violin plot
-subplot5 <- ggplot(df, aes(x = dataset, y = duration)) +
-  geom_violin(trim = FALSE, fill = "lightpink", draw_quantiles = c(0.25, 0.5, 0.75)) +
-  labs(x = "Dataset name", y = "Files duration (sec)", title = "Samples duration for each dataset") +
-  theme_bw() +
-  theme(plot.title = element_text(size = 12)) +
-  coord_flip()
-
-print(subplot5)
 
 ##############################
 
@@ -309,6 +247,7 @@ clean_dataset <- function(df, dataset) {
     # Load audio file at a sample rate of 16000 Hz
     audio_file <- df_clean$path[i]
     audio <- readWave(audio_file)
+    tuneR::play(audio)
     
     # Trim signal at a level of 20 dB
     y_trim <- noSilence(audio, level = -20, where = "both")
@@ -317,6 +256,7 @@ clean_dataset <- function(df, dataset) {
     y_noise_rem <- rmnoise(y_trim, output = "Wave", f = 16000)
     
     # Normalize the audio signal
+    #y_normalized <- normalize(y_noise_rem)
     y_normalized <- normalize(y_noise_rem, method="range", range = c(-32768, 32767))
     
     # Create a new file name with '_cleaned.wav' suffix
@@ -355,7 +295,8 @@ downsample_dataset<- function(df, dataset, sample_rate) {
 }
 
 df_downsample <- downsample_dataset(df, "SAVEE", 16000)
+str(df_downsample)
 #df_downsample$path[df_downsample$dataset=="SAVEE"]
 
-df_clean <- clean_dataset(df_downsample, "SAVEE")
-df_clean <- clean_dataset(df_downsample, "SAVEE")
+df_clean <- clean_dataset(df_downsample, "CREMA-D")
+

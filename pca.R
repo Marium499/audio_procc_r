@@ -14,6 +14,7 @@ library(class)
 library(e1071)
 library(caret)
 library(factoextra)
+library(tidyverse)
 library("FactoMineR")
 library("ggcorrplot")
 library("corrr")
@@ -21,15 +22,16 @@ library("corrr")
 
 
 df <- read.csv("output/df_final_combined_6_mfcc.csv")
-pca_test <- df_final
+pca_test <- df
 rownames(pca_test) <- NULL
 colSums(is.na(pca_test))
 pca_test <- drop_na(pca_test)
 summary(pca_test)
 
-n <- 35 # number of cols
-#numerical_data <- pca_test[,9:n]
+
+
 numerical_data <- pca_test[, !(names(pca_test) %in% c('path', 'filename', 'dataset', 'duration', 'age', 'gender', 'sample_rate'))]
+
 
 X = numerical_data %>% select(-emotion)
 Y = numerical_data %>% select(emotion)
